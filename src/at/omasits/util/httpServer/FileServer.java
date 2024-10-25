@@ -345,7 +345,8 @@ public class FileServer extends NanoHTTPD {
 
         // Defaults
         int port = 8080;
-        String host = "127.0.0.1";
+        //String host = "127.0.0.1";
+        String host = "0.0.0.0";
         File wwwroot = new File(".").getAbsoluteFile();
 
         // Show licence if requested
