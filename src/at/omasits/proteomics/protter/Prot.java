@@ -416,7 +416,8 @@ public class Prot {
 					}
 				}
 				input.close();
-			if (pLatex.exitValue()!=0) {
+			int exitValue = pLatex.waitFor();
+			if (exitValue!=0) {
 				Log.errorThrow("could not generate textopo image: latex ended with error code "+pLatex.exitValue());
 				return;
 			}
@@ -432,7 +433,8 @@ public class Prot {
 					Log.debug(line);
 				}
 				input.close();
-			if (pDvi2Svg.exitValue()!=0) {
+			exitValue = pDvi2Svg.waitFor();
+			if (exitValue!=0) {
 				Log.errorThrow("could not generate textopo image: dvisvgm ended with error code "+pDvi2Svg.exitValue());
 				return;
 			}

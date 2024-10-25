@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import at.omasits.util.Config;
 import at.omasits.util.Log;
@@ -16,6 +18,21 @@ import at.omasits.util.Util;
 
 public class RangeParserPeptideCutter implements IRangeParser {
 	private static HashMap<List<String>,List<Range>> buffer = new HashMap<List<String>, List<Range>>();
+
+	public static String extractPositions(String line) {
+		// Function to extract cleavage postions returned by peptidecutter.pl
+		// The relevant HTML line is of the form:
+		// <tr><td><a href="/peptide_cutter/peptidecutter_enzymes.html#LysC">LysC</a></td><td>10</td><td>6 9 35 67 94 99 100 114 139 140</td><tr>
+		String regex = "</td><td>(\\d+(?: \\d+)*)</td><tr>";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(line);
+
+		String positions = null;
+		while (matcher.find()) {
+			positions = matcher.group(1); // Update with the latest match
+		}
+		return positions;
+	}
 
 	@Override
 	public boolean matches(String rangeString) {
@@ -41,8 +58,8 @@ public class RangeParserPeptideCutter implements IRangeParser {
 				BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 				String line;
 				while ((line = in.readLine()) != null) {
-					if (line.startsWith("<tr><td><A HREF=\"/peptide_cutter/peptidecutter_enzymes.html")) {
-						String strCutPositions = Util.substringBetweenStrings(line, "</td><td>", "</td><tr>");
+					if (line.startsWith("<tr><td><a href=\"/peptide_cutter/peptidecutter_enzymes.html")) {
+						String strCutPositions = extractPositions(line);
 						for (String strCutPosition : strCutPositions.split(" ")) {
 							int cutPos = Integer.valueOf(strCutPosition);
 							cutPositions.add(new Range(cutPos, cutPos));
